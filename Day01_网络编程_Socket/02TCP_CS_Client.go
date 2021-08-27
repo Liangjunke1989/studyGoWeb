@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-var IPServer = "localhost"
+var IPServer = "192.168.1.90"
 var PortServer = "5566"
 
 func main() {
@@ -33,5 +33,5 @@ func main() {
 	if err != nil {
 		fmt.Println("conn.Read()读取有误！！", err.Error())
 	}
-	fmt.Println("拿到的服务器端的回写数据为：", string(buf[:n]))
+	fmt.Println("拿到的服务器端的回写数据为：\n", string(buf[:n]))
 }
