@@ -5,8 +5,8 @@ import (
 	"net"
 )
 
-var IP = "localhost"
-var Port = "5566"
+//var IP = "127.0.0.1"
+//var Port = "5566"
 
 func main() {
 	/*
@@ -33,9 +33,9 @@ func main() {
 					SetWriteDeadline(t time.Time) error
 			    }
 	*/
-	addrStr := fmt.Sprint(IP, ":", Port)
+	//addrStr := fmt.Sprint(IP, ":", Port)
 	//指定服务器的通信协议，IP地址，端口号.    (创建一个用于监听的socket)     -----创建的是服务器的监听IP和端口
-	listener, err := net.Listen("tcp", addrStr)
+	listener, err := net.Listen("tcp", "192.168.1.90:5566")
 	if err != nil {
 		fmt.Println("net.Listen()出错了！", err.Error())
 		return
@@ -60,10 +60,10 @@ func main() {
 		return
 	}
 	//将读取的数据进行处理
-	fmt.Println("从客户端获取到的数据为：", string(buf[:n]))
+	fmt.Println("从LJKCompany客户端获取到的数据为：", string(buf[:n]))
 
 	//服务器回写数据
-	str1 := "来自服务端的一条回写数据！"
+	str1 := "这是一条来自LJKHomeServer服务端的一条回写数据！"
 	write, _ := conn.Write([]byte(str1))
 	fmt.Println(write)
 }
