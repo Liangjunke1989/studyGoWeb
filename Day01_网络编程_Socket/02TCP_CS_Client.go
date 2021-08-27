@@ -26,7 +26,7 @@ func main() {
 	}
 	defer conn.Close()
 	//02、客户端写数据给服务器
-	conn.Write([]byte("我是LJK客户端数据包......"))
+	conn.Write([]byte("我是LJKMac客户端数据包......"))
 	//03、接收服务器回发的数据
 	buf := make([]byte, 4096)
 	n, err := conn.Read(buf)

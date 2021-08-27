@@ -16,6 +16,7 @@ func main() {
 	defer listener.Close()
 	//02、阻塞监听客户端连接请求.
 	for {
+		fmt.Println("服务器等待客户端连接......")
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println("listener.Accept()出错了！", err.Error())
@@ -38,6 +39,10 @@ func HandlerConnect(conn net.Conn) {
 	for {
 		//读取数据
 		n, err := conn.Read(buf)
+		if n == 0 {
+			fmt.Println("服务器检测到客户端已关闭，断开连接")
+			return
+		}
 		if err != nil {
 			fmt.Println("conn.Read()错误！", err.Error())
 			return
