@@ -12,9 +12,9 @@ func main() {
 	/*
 		Server端：
 			Listen函数：
-			func Listen(network,address string)(Listener,error)
-				network:选用的协议TCP/UDP
-				address:IP地址+端口号
+				func Listen(network,address string)(Listener,error)
+					network:选用的协议TCP/UDP
+					address:IP地址+端口号
 			Listener接口:
 				type Listener interface{
 					Accept()(Conn,error)
@@ -60,6 +60,7 @@ func main() {
 		return
 	}
 	//将读取的数据进行处理
+	//conn.Write(buf[:n])
 	fmt.Println("从客户端获取到的数据为：", string(buf[:n]))
 
 	//服务器回写数据
