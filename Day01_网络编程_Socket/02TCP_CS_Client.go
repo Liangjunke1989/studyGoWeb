@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-var IPServer = "localhost"
+var IPServer = "192.168.1.90"
 var PortServer = "5566"
 
 func main() {
@@ -21,17 +21,17 @@ func main() {
 	addrStr := fmt.Sprint(IPServer, ":", PortServer)
 	conn, err := net.Dial("tcp", addrStr)
 	if err != nil {
-		fmt.Println("net.Dial()拨号有误！！", err.Error())
+		fmt.Println("net.Dial()拨号有误，检查服务器是否启动！！", err.Error())
 		return
 	}
 	defer conn.Close()
 	//02、客户端写数据给服务器
-	conn.Write([]byte("我是LJK客户端......"))
+	conn.Write([]byte("我是LJK客户端数据包......"))
 	//03、接收服务器回发的数据
 	buf := make([]byte, 4096)
 	n, err := conn.Read(buf)
 	if err != nil {
 		fmt.Println("conn.Read()读取有误！！", err.Error())
 	}
-	fmt.Println("拿到的服务器端的回写数据为：", string(buf[:n]))
+	fmt.Println("拿到的LJKHomeServer服务器端的回写数据为：", string(buf[:n]))
 }
