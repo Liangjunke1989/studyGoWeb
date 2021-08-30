@@ -32,6 +32,10 @@ func main() {
 	buf := make([]byte, 4096)
 	for {
 		n, err := conn.Read(buf)
+		if n == 0 {
+			fmt.Println("服务器已经主动关闭了！！！，客户端也关闭")
+			return
+		}
 		if err != nil {
 			fmt.Println("从服务器读取数据有误！", err.Error())
 			return
