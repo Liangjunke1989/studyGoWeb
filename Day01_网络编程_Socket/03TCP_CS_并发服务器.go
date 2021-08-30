@@ -39,7 +39,11 @@ func HandlerConnect(conn net.Conn) {
 	for {
 		//读取数据
 		n, err := conn.Read(buf)
-		if n == 0 {
+		if "exit" == string(buf[:n]) {
+			fmt.Println("服务器接收到的客户端请求，可以正常关闭")
+			return
+		}
+		if n == 0 { //从已经关闭的channel读去数据，是可以读取数据的，值为0
 			fmt.Println("服务器检测到客户端已关闭，断开连接")
 			return
 		}
