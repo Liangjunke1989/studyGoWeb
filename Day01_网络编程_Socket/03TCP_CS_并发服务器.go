@@ -33,13 +33,12 @@ func HandlerConnect(conn net.Conn) {
 	//获取客户端的网络地址
 	addr := conn.RemoteAddr()
 	fmt.Println(addr, "客户端成功连接！！！")
-
 	//循环读取客户端发送数据
 	buf := make([]byte, 4096)
 	for {
 		//读取数据
 		n, err := conn.Read(buf)
-		if "exit" == string(buf[:n]) {
+		if "exit\n" == string(buf[:n]) {
 			fmt.Println("服务器接收到的客户端请求，可以正常关闭")
 			return
 		}
