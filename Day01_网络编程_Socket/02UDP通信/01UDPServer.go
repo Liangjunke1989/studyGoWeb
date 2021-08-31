@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"time"
 )
 
 func main() {
@@ -24,4 +25,13 @@ func main() {
 	}
 	//模拟处理数据
 	fmt.Println("服务器从", clientAddr, "读取到的数据为：", string(buf[:n]))
+
+	//提取系统的当前时间
+	daytime := time.Now().String()
+	//回写数据给客户端
+	_, err = udpConn.WriteToUDP([]byte(daytime), clientAddr)
+	if err != nil {
+		fmt.Println("UDPServer回写失败！！！", err.Error())
+		return
+	}
 }
