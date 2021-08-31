@@ -15,6 +15,7 @@ func main() {
 		fmt.Println("服务器创建监听地址出错了！", err.Error())
 		return
 	}
+	fmt.Println("udp服务器通信Socket创建完成！！！")
 	defer udpConn.Close()
 	buf := make([]byte, 4096)
 	//返回3个值，分别是（读取到的字节数、客户端的地址、err）
