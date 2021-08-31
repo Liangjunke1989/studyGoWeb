@@ -19,7 +19,7 @@ func main() {
 	defer udpConn.Close()
 	buf := make([]byte, 4096)
 	//返回3个值，分别是（读取到的字节数、客户端的地址、err）
-	n, clientAddr, err := udpConn.ReadFromUDP(buf)
+	n, clientAddr, err := udpConn.ReadFromUDP(buf) //读取阻塞
 	if err != nil {
 		fmt.Println("udpConn读取数据有误！", err.Error())
 		return
