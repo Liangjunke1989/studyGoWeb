@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net"
+	"strings"
+	"time"
 )
 
 //创建服务器的监听IP和端口号
@@ -76,26 +78,31 @@ func Manager() {
 
 func HandlerConnect(conn net.Conn) { //处理客户端数据请求
 	defer conn.Close()
+	//创建channel，判断用户是否活跃
+	hasData := make(chan bool)
 	//获取用户网络地址
 	clientAddr := conn.RemoteAddr().String()
 	//创建新连接用户的结构体信息,默认用户名为ip+port
-	client := Client{
+	_client := Client{
 		C:    make(chan string),
 		Name: clientAddr,
 		Addr: clientAddr,
 	}
 	//将新连接用户添加到用户map中
-	onlineMap[clientAddr] = client
+	onlineMap[clientAddr] = _client
 	//创建专门用来给当前用户发送消息的go程
-	go WriteMsgToClient(client, conn)
+	go WriteMsgToClient(_client, conn)
 	//发送 用户上线消息 到全局Channel中
-	broadcastMsgChan <- makeBroadcastMsg(client, "login!!!客户端已经成功登陆！！！")
+	broadcastMsgChan <- makeBroadcastMsg(_client, "login!!!客户端已经成功登陆！！！")
+	//创建一个channel，用户判断退出状态
+	isQuit := make(chan bool)
 	go func() {
 		buf := make([]byte, 4096)
 		for {
 			n, err := conn.Read(buf)
 			if n == 0 {
-				fmt.Printf("%s客户端已退出！", client.Name)
+				isQuit <- true
+				fmt.Printf("%s客户端已退出！", _client.Name)
 				return
 			}
 			if err != nil {
@@ -103,7 +110,7 @@ func HandlerConnect(conn net.Conn) { //处理客户端数据请求
 				return
 			}
 			clientMsg := string(buf[:n-1])
-			//提取在线用户列表
+			//提取在线用户列表：判断是否为who命令，如果是，组织显示信息，写入到socket中
 			if clientMsg == "who" && len(clientMsg) == 3 {
 				conn.Write([]byte("在线用户列表：\n"))
 				//通过遍历map获取在线用户
@@ -111,15 +118,33 @@ func HandlerConnect(conn net.Conn) { //处理客户端数据请求
 					clientUserInfo := fmt.Sprint(clientUser.Addr + ":" + clientUser.Name)
 					conn.Write([]byte(clientUserInfo))
 				}
+				//判断用户发送了改名命令，返回更新成功的提示信息
+			} else if len(clientMsg) >= 8 && clientMsg[:6] == "rename" { //至少有一个字符
+				newName := strings.Split(clientMsg, "|")[1]
+				_client.Name = newName
+				onlineMap[clientAddr] = _client //更新 onlineMap
+				conn.Write([]byte("用户重命名，更新成功！！！"))
 			} else {
 				//将读到的用户消息，广播给所有用户。将读取的数据写入到broadcastMessage
-				broadcastMsgChan <- makeBroadcastMsg(client, clientMsg)
+				broadcastMsgChan <- makeBroadcastMsg(_client, clientMsg)
 			}
+			hasData <- true //如果用户执行了上面的操作，说明用户活跃中，可以向标识位写入操作，让通道畅通。
 		}
 	}()
 	//保证 不退出
 	for {
-
+		//监听channel上的数据流动
+		select {
+		case <-isQuit:
+			delete(onlineMap, clientAddr)                                   //将用户从online中移除
+			broadcastMsgChan <- makeBroadcastMsg(_client, "logout,客户端退出了！") //写入用户退出消息到广播channel
+			return
+		case <-time.After(time.Second * 15):
+			delete(onlineMap, clientAddr)                                      //将用户从online中移除
+			broadcastMsgChan <- makeBroadcastMsg(_client, "logout,客户端超时，退出了！") //写入用户退出消息到广播channel
+			return
+		case <-hasData: //什么都不做，目的是,说明用户活跃中，让程序不退出
+		}
 	}
 }
 
