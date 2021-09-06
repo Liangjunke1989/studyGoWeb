@@ -20,7 +20,7 @@ type Client struct {
 var onlineMap map[string]Client
 
 //创建全局channel，传递用户消息
-var broadcastMessage = make(chan string)
+var broadcastMsgChan = make(chan string)
 
 func main() {
 	/*
@@ -66,7 +66,7 @@ func Manager() {
 
 	//监听全局channel中是否有数据,有数据存储至msg，无数据阻塞。
 	for {
-		msg := <-broadcastMessage
+		msg := <-broadcastMsgChan
 		//循环发送消息给 所有在线用户
 		for _, cli := range onlineMap {
 			cli.C <- msg
@@ -89,12 +89,43 @@ func HandlerConnect(conn net.Conn) { //处理客户端数据请求
 	//创建专门用来给当前用户发送消息的go程
 	go WriteMsgToClient(client, conn)
 	//发送 用户上线消息 到全局Channel中
-	msg := fmt.Sprint("[", clientAddr, "]"+client.Name, "login,上线了！！！")
-	broadcastMessage <- msg
+	broadcastMsgChan <- makeBroadcastMsg(client, "login!!!客户端已经成功登陆！！！")
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := conn.Read(buf)
+			if n == 0 {
+				fmt.Printf("%s客户端已退出！", client.Name)
+				return
+			}
+			if err != nil {
+				fmt.Println("从客户端读取数据有误！", err.Error())
+				return
+			}
+			clientMsg := string(buf[:n-1])
+			//提取在线用户列表
+			if clientMsg == "who" && len(clientMsg) == 3 {
+				conn.Write([]byte("在线用户列表：\n"))
+				//通过遍历map获取在线用户
+				for _, clientUser := range onlineMap {
+					clientUserInfo := fmt.Sprint(clientUser.Addr + ":" + clientUser.Name)
+					conn.Write([]byte(clientUserInfo))
+				}
+			} else {
+				//将读到的用户消息，广播给所有用户。将读取的数据写入到broadcastMessage
+				broadcastMsgChan <- makeBroadcastMsg(client, clientMsg)
+			}
+		}
+	}()
 	//保证 不退出
 	for {
 
 	}
+}
+
+//处理创建广播消息
+func makeBroadcastMsg(client Client, msgContent string) string {
+	return fmt.Sprint("[", client.Addr, "]"+client.Name, ": \n", msgContent)
 }
 
 //通过通道阻塞的方式，实现go程之间的通信和执行顺序的控制
