@@ -18,7 +18,7 @@ func main() {
 //回调函数
 func ljkHandler(w http.ResponseWriter, r *http.Request) {
 	//w http.ResponseWriter 响应数据
-	n, err := w.Write([]byte("写给客户端的内容，即响应数据：LJK"))
+	n, err := w.Write([]byte("目前写给所有客户端的内容，即响应数据为：这个LJK的第一个goWeb服务器"))
 	if err != nil {
 		fmt.Println("会写数据有误！", err.Error())
 	} else {
