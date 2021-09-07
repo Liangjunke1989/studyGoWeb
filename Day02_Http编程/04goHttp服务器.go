@@ -7,7 +7,7 @@ import (
 
 func main() {
 	//01、注册回调函数
-	http.HandleFunc("/3DTest", ljkHandler) //pattern:"模式" --类似于访问权限
+	http.HandleFunc("/3DTest", ljkHandler) //pattern:"模式" --类似于访问权限  "/3DTest/"表示此文件夹下权限都被开发。
 	//02、绑定服务器监听地址
 	err := http.ListenAndServe("192.168.1.90:5566", nil) //调用默认的回调函数
 	if err != nil {
