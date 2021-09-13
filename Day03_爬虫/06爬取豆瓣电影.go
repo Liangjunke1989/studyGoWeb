@@ -41,14 +41,14 @@ func ToCrawlDataWork(start int, end int) {
 func CrawlingSinglePageData(index int) {
 	//获取url
 	//url :="https://tieba.baidu.com/f?kw=unity&ie=utf-8&pn=" + strconv.Itoa((index-1)*50)
-	url := "https://movie.douban.com/top250?start=" + strconv.Itoa((index-1)*25) //+"&filter="
+	url := "https://movie.douban.com/top250?start=" + strconv.Itoa((index-1)*25) + "&filter="
 	//爬取url对应页面，封装httpGet3()函数
 	result, err := HttpGetDB(url)
 	LJKErrFunc3(err, "网页文件数据获取有误！HttpGet3()出错")
 	//测试查看result的结果
-	//fmt.Println(result)
+	fmt.Println(result)
 	//01、解析编译正则表达式--
-	ret := regexp.MustCompile(`<img width=“100” alt=“(.*?)"`)
+	ret := regexp.MustCompile(`<img width="100" alt="(.*?)"`)
 	//02、提取需要信息
 	filmNameArr := ret.FindAllStringSubmatch(result, -1)
 	//for _, name := range filmNameArr {
@@ -61,7 +61,7 @@ func CrawlingSinglePageData(index int) {
 
 func Save2File(index int, filmNameArr [][]string) {
 	fName := "第 " + strconv.Itoa(index) + " 页" + ".html"
-	fPath := "./src/Day03_爬虫/DirTest/"
+	fPath := "./src/Day03_爬虫/DirTest02/"
 	fPathName := fPath + fName
 	f2, err := os.OpenFile(fPathName, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	LJKErrFunc3(err, "打开文件有误！")
