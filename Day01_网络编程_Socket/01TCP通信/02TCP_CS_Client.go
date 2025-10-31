@@ -5,8 +5,8 @@ import (
 	"net"
 )
 
-var IPServer = "192.168.1.90"
-var PortServer = "5566"
+var IPServer = "0.0.0.0"
+var PortServer = "6655"
 
 func main() {
 	/*

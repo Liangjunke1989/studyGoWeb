@@ -5,8 +5,8 @@ import (
 	"net"
 )
 
-var IP = "localhost"
-var Port = "5566"
+var IP = "0.0.0.0"
+var Port = "6655"
 
 func main() {
 	/*
